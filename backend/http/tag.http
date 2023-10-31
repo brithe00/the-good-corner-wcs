@@ -1,0 +1,31 @@
+GET http://localhost:8000/tags
+
+###
+
+POST http://localhost:8000/tags
+Content-Type: application/json
+
+{
+    "name": "Sold"
+}
+
+###
+
+PUT http://localhost:8000/tags
+Content-Type: application/json
+
+{
+    "tagToEdit": 1,
+    "newTag": {
+        "name": "New | Updated"
+    }
+}
+
+
+###
+DELETE http://localhost:8000/tags
+Content-Type: application/json
+
+{
+    "id": 2
+}

@@ -1,6 +1,23 @@
-import axios from 'axios';
+import { GET_CATEGORIES } from '@/components/Header';
+import { useMutation, gql } from '@apollo/client';
+
+const ADD_CATEGORY = gql`
+	mutation CreateCategory($input: CategoryInput!) {
+		createCategory(input: $input) {
+			id
+			title
+		}
+	}
+`;
 
 const NewCategory = () => {
+	const [createCategory, { data, loading, error }] = useMutation(ADD_CATEGORY, {
+		refetchQueries: [GET_CATEGORIES, 'GetCategories'],
+	});
+
+	if (loading) return <p>Loading...</p>;
+	if (error) return <p>Error : {error.message}</p>;
+
 	return (
 		<form
 			onSubmit={(e) => {
@@ -11,7 +28,9 @@ const NewCategory = () => {
 
 				const formJson = Object.fromEntries(formData.entries());
 
-				axios.post('http://localhost:8000/categories', formJson);
+				createCategory({
+					variables: { input: formJson },
+				});
 			}}
 		>
 			<label>

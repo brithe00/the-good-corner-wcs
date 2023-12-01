@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Moment from 'react-moment';
+import { useQuery, gql } from '@apollo/client';
 
 type AdDetails = {
 	id?: string;
@@ -16,45 +17,59 @@ type AdDetails = {
 	tags?: [];
 };
 
-const AdDetails = () => {
-	const [data, setData] = useState<AdDetails>();
+const GET_AD = gql`
+	query Ad($adId: String!) {
+		ad(id: $adId) {
+			id
+			title
+			description
+			imgUrl
+			location
+			owner
+			price
+			tags {
+				id
+				name
+			}
+			category {
+				id
+				title
+			}
+			createdAt
+			updatedAt
+		}
+	}
+`;
 
+const AdDetails = () => {
 	const router = useRouter();
 	const { id } = router.query;
 
-	useEffect(() => {
-		const fetchProduct = async () => {
-			try {
-				const result = await axios.get<AdDetails>(
-					`http://localhost:8000/ads/${id}`
-				);
-				setData(result.data);
-			} catch (error) {
-				console.log('error :', error);
-			}
-		};
+	const { loading, error, data } = useQuery(GET_AD, {
+		variables: { adId: id },
+	});
 
-		fetchProduct();
-	}, [id]);
+	if (loading) return <p>Loading...</p>;
+	if (error) return <p>Error : {error.message}</p>;
 
 	return (
 		data && (
 			<main className="main-content">
-				<h2 className="ad-details-title">{data.title}</h2>
+				<h2 className="ad-details-title">{data.ad.title}</h2>
 				<section className="ad-details">
 					<div className="ad-details-image-container">
-						<img className="ad-details-image" src={data.imgUrl} />
+						<img className="ad-details-image" src={data.ad.imgUrl} />
 					</div>
 					<div className="ad-details-info">
-						<div className="ad-details-price">{data.price} €</div>
-						<div className="ad-details-description">{data.description}</div>
+						<div className="ad-details-price">{data.ad.price} €</div>
+						<div className="ad-details-description">{data.ad.description}</div>
 						<hr className="separator" />
 						<div className="ad-details-owner">
-							Annonce publiée par <b>{data.owner}</b> le{' '}
-							<Moment format="DD-MM-YYYY HH:mm">{data.createdAt}</Moment>
+							Annonce publiée par <b>{data.ad.owner}</b> le{' '}
+							<Moment format="DD-MM-YYYY HH:mm">{data.ad.createdAt}</Moment>
 						</div>
 						<a
-							href={`mailto:${data.owner}`}
+							href={`mailto:${data.ad.owner}`}
 							className="button button-primary link-button"
 						>
 							<svg

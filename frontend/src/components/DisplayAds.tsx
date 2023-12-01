@@ -1,20 +1,26 @@
 import Link from 'next/link';
 import AdCard, { AdCardProps } from './AdCard';
-import axios from 'axios';
+import { gql, useMutation } from '@apollo/client';
+import { GET_ADS } from './RecentAds';
 
 type DisplayAdsType = {
 	ads: AdCardProps[];
 	title: string;
 };
 
+const DELETE_AD = gql`
+	mutation Mutation($deleteAdId: String!) {
+		deleteAd(id: $deleteAdId)
+	}
+`;
+
 const DisplayAds = ({ ads, title }: DisplayAdsType) => {
-	const deleteAdHandler = async (id: string | undefined) => {
-		try {
-			await axios.delete(`http://localhost:8000/ads/${id}`);
-		} catch (error) {
-			console.log('error :', error);
-		}
-	};
+	const [deleteAd, { data, loading, error }] = useMutation(DELETE_AD, {
+		refetchQueries: [GET_ADS, 'GetAds'],
+	});
+
+	if (loading) return <p>Loading...</p>;
+	if (error) return <p>Error : {error.message}</p>;
 
 	return (
 		<>
@@ -31,7 +37,11 @@ const DisplayAds = ({ ads, title }: DisplayAdsType) => {
 						<Link href={`/ad/${ad.id}`}>Details</Link> |{' '}
 						<Link href={`/ad/${ad.id}/edit`}>Edit</Link>
 						<br />
-						<button onClick={() => deleteAdHandler(ad.id)}>Delete</button>
+						<button
+							onClick={() => deleteAd({ variables: { deleteAdId: ad.id } })}
+						>
+							Delete
+						</button>
 					</div>
 				))}
 			</section>

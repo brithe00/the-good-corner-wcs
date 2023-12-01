@@ -7,10 +7,9 @@ export type CategoryCardProps = {
 const CategoryCard = ({ title, link }: CategoryCardProps) => {
 	return (
 		<>
-			<a href={link} className="category-navigation-link">
-				{title}
-			</a>
-			•
+			{/* <a href={link} className="category-navigation-link"> */}
+			{title}
+			{/* </a> */}•
 		</>
 	);
 };

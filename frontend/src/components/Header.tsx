@@ -1,31 +1,21 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import CategoryCard, { CategoryCardProps } from './CategoryCard';
+import CategoryCard from './CategoryCard';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useQuery } from '@apollo/client';
+
+import { GET_CATEGORIES } from '@/graphql/queries/queries';
 
 const Header = () => {
 	const router = useRouter();
-	const [categories, setCategories] = useState<CategoryCardProps[]>([]);
 
-	useEffect(() => {
-		const fetchCategories = async () => {
-			try {
-				const result = await axios.get<CategoryCardProps[]>(
-					'http://localhost:8000/categories'
-				);
+	const { loading, error, data } = useQuery(GET_CATEGORIES);
 
-				setCategories(result.data);
-			} catch (error) {
-				console.log('error :', error);
-			}
-		};
-
-		fetchCategories();
-	}, []);
+	if (loading) return <p>Loading...</p>;
+	if (error) return <p>Error : {error.message}</p>;
 
 	return (
 		<header className="header">
+			{}
 			<div className="main-menu">
 				<h1>
 					<Link href="/" className="button logo link-button">
@@ -74,9 +64,13 @@ const Header = () => {
 					<span className="mobile-short-label">Créer une catégorie</span>
 					<span className="desktop-long-label">Créer une catégorie</span>
 				</Link>
+				<Link href="/tag/new" className="button link-button">
+					<span className="mobile-short-label">Créer un tag</span>
+					<span className="desktop-long-label">Créer un tag</span>
+				</Link>
 			</div>
 			<nav className="categories-navigation">
-				{categories.map((category) => (
+				{data?.categories.map((category) => (
 					<Link
 						href={`/ad/filter/${category.title.toLowerCase()}`}
 						key={category.id}

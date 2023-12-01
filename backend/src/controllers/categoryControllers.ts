@@ -15,7 +15,7 @@ const categoryController = {
 		try {
 			const data = await Category.findOne({
 				where: {
-					id: Number(req.params.id),
+					id: req.params.id,
 				},
 			});
 
@@ -37,7 +37,7 @@ const categoryController = {
 	update: async (req: Request, res: Response) => {
 		try {
 			const categoryToEdit = await Category.findOneBy({
-				id: Number(req.params.id),
+				id: req.params.id,
 			});
 
 			Category.save({
